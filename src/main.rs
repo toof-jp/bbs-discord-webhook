@@ -1,8 +1,4 @@
-use std::collections::HashMap;
-use std::env;
-use std::fmt;
-use std::thread::sleep;
-use std::time::Duration;
+use std::{collections::HashMap, env, fmt, thread::sleep, time::Duration};
 
 use anyhow::Result;
 use chrono::NaiveDateTime;
@@ -32,7 +28,7 @@ async fn main() -> Result<()> {
             max_no = res.no;
             sleep(Duration::from_millis(500));
         }
-        
+
         sleep(Duration::from_secs(1));
     }
 
@@ -74,7 +70,11 @@ pub struct Res {
 
 impl fmt::Display for Res {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "### __{} {} {} ID: {}__\n{}\n", self.no, self.name_and_trip, self.datetime_text, self.id, self.main_text)
+        write!(
+            f,
+            "### __{} {} {} ID: {}__\n{}\n",
+            self.no, self.name_and_trip, self.datetime_text, self.id, self.main_text
+        )
     }
 }
 
