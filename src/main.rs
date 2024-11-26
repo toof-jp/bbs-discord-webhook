@@ -33,8 +33,9 @@ async fn main() -> Result<()> {
 
         for res in vec {
             post(&webhook_url, &res.to_string()).await?;
+            eprintln!("posted: {}", res.no);
             max_no = res.no;
-            std::fs::write("res_no", max_no.to_string()).unwrap();
+            std::fs::write("res_no", format!("{}\n", max_no)).unwrap();
             sleep(Duration::from_millis(500));
         }
 
