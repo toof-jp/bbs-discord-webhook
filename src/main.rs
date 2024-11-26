@@ -18,7 +18,14 @@ async fn main() -> Result<()> {
         .await
         .expect("Failed to connect to Postgres");
 
-    let mut max_no = get_max_res_no(&pool).await?;
+    let mut max_no = if std::path::Path::new("res_no").exists() {
+        std::fs::read_to_string("res_no")
+            .unwrap()
+            .parse::<i32>()
+            .unwrap()
+    } else {
+        get_max_res_no(&pool).await?
+    };
 
     loop {
         let vec = get_res(&pool, max_no).await?;
@@ -26,6 +33,7 @@ async fn main() -> Result<()> {
         for res in vec {
             post(&webhook_url, &res.to_string()).await?;
             max_no = res.no;
+            std::fs::write("res_no", max_no.to_string()).unwrap();
             sleep(Duration::from_millis(500));
         }
 
