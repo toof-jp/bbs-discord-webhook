@@ -21,6 +21,7 @@ async fn main() -> Result<()> {
     let mut max_no = if std::path::Path::new("res_no").exists() {
         std::fs::read_to_string("res_no")
             .unwrap()
+            .trim()
             .parse::<i32>()
             .unwrap()
     } else {
