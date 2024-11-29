@@ -1,10 +1,16 @@
-use std::{collections::HashMap, env, fmt, thread::sleep, time::Duration};
+use std::collections::HashMap;
+use std::fs::read_to_string;
+use std::path::Path;
+use std::thread::sleep;
+use std::time::Duration;
+use std::{env, fmt};
 
 use anyhow::Result;
 use chrono::NaiveDateTime;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use serde::Serialize;
-use sqlx::{postgres::PgPoolOptions, PgPool};
+use sqlx::postgres::PgPoolOptions;
+use sqlx::PgPool;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -18,8 +24,8 @@ async fn main() -> Result<()> {
         .await
         .expect("Failed to connect to Postgres");
 
-    let mut max_no = if std::path::Path::new("res_no").exists() {
-        std::fs::read_to_string("res_no")
+    let mut max_no = if Path::new("res_no").exists() {
+        read_to_string("res_no")
             .unwrap()
             .trim()
             .parse::<i32>()
@@ -46,8 +52,7 @@ async fn main() -> Result<()> {
 }
 
 async fn post(webhook_url: &str, content: &str) -> Result<()> {
-    let mut map = HashMap::new();
-    map.insert("content", content);
+    let map = HashMap::from([("content", content)]);
 
     reqwest::Client::new()
         .post(webhook_url)

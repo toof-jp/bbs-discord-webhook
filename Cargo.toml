@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.89"
 chrono = { version = "0.4.38", features = ["serde"] } 
-dotenv = "0.15.0"
+dotenvy = "0.15.0"
 reqwest = { version = "0.12.8", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 sqlx = { version = "0.8.2", features = ["chrono", "postgres", "macros", "runtime-tokio-rustls"] }
