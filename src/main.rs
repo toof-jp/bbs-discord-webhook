@@ -18,6 +18,7 @@ async fn main() -> Result<()> {
 
     let webhook_url = env::var("WEBHOOK_URL").expect("WEBHOOK_URL must be set");
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let image_url_prefix = env::var("IMAGE_URL_PREFIX").expect("IMAGE_URL_PREFIX must be set");
 
     let pool = PgPoolOptions::new()
         .connect(&database_url)
@@ -38,7 +39,7 @@ async fn main() -> Result<()> {
         let vec = get_res(&pool, max_no).await?;
 
         for res in vec {
-            post(&webhook_url, &res).await?;
+            post(&webhook_url, &res, &image_url_prefix).await?;
             eprintln!("posted: {}", res.no);
             max_no = res.no;
             std::fs::write("res_no", format!("{}\n", max_no)).unwrap();
@@ -51,9 +52,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn post(webhook_url: &str, res: &Res) -> Result<()> {
-    const IMAGE_URL_PREFIX: &str = "https://tk2-110-56213.vs.sakura.ne.jp/images/";
-
+async fn post(webhook_url: &str, res: &Res, image_url_prefix: &str) -> Result<()> {
     #[derive(Serialize)]
     struct DiscordEmbed {
         image: HashMap<String, String>,
@@ -71,7 +70,7 @@ async fn post(webhook_url: &str, res: &Res) -> Result<()> {
         embeds: res.oekaki_id.map(|oekaki_id| {
             vec![DiscordEmbed {
                 image: HashMap::from([
-                    ("url".to_string(), format!("{}{}.png", IMAGE_URL_PREFIX, oekaki_id))
+                    ("url".to_string(), format!("{}{}.png", image_url_prefix, oekaki_id))
                 ]),
             }]
         }),
