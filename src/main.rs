@@ -38,7 +38,7 @@ async fn main() -> Result<()> {
         let vec = get_res(&pool, max_no).await?;
 
         for res in vec {
-            post(&webhook_url, &res.to_string()).await?;
+            post(&webhook_url, &res).await?;
             eprintln!("posted: {}", res.no);
             max_no = res.no;
             std::fs::write("res_no", format!("{}\n", max_no)).unwrap();
@@ -51,12 +51,35 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn post(webhook_url: &str, content: &str) -> Result<()> {
-    let map = HashMap::from([("content", content)]);
+async fn post(webhook_url: &str, res: &Res) -> Result<()> {
+    const IMAGE_URL_PREFIX: &str = "https://tk2-110-56213.vs.sakura.ne.jp/images/";
+
+    #[derive(Serialize)]
+    struct DiscordEmbed {
+        image: HashMap<String, String>,
+    }
+
+    #[derive(Serialize)]
+    struct DiscordWebhook {
+        content: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        embeds: Option<Vec<DiscordEmbed>>,
+    }
+
+    let webhook_data = DiscordWebhook {
+        content: res.main_text.to_string(),
+        embeds: res.oekaki_id.map(|oekaki_id| {
+            vec![DiscordEmbed {
+                image: HashMap::from([
+                    ("url".to_string(), format!("{}{}.png", IMAGE_URL_PREFIX, oekaki_id))
+                ]),
+            }]
+        }),
+    };
 
     reqwest::Client::new()
         .post(webhook_url)
-        .json(&map)
+        .json(&webhook_data)
         .send()
         .await?;
 
