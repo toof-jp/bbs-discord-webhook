@@ -66,7 +66,7 @@ async fn post(webhook_url: &str, res: &Res, image_url_prefix: &str) -> Result<()
     }
 
     let webhook_data = DiscordWebhook {
-        content: res.main_text.to_string(),
+        content: res.to_string(),
         embeds: res.oekaki_id.map(|oekaki_id| {
             vec![DiscordEmbed {
                 image: HashMap::from([
